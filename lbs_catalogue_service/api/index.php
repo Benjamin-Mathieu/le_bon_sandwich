@@ -7,5 +7,15 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 echo "catalogue service index";
 
-$db_mongo = new \MongoDB\Client("mongodb://api.catalogue.local");
-echo "connected to mongo<br>";
+// Connexion à la DB
+$connection = new \MongoDB\Client("mongodb://dbcat");
+
+// Sélectionne la base de donnée à utiliser
+$db_catalogue = $connection->catalogue;
+
+// Sélectionne la collection de sandwichs
+$sandwiches = $db_catalogue->sandwiches->find();
+
+foreach ($sandwiches as $sandwich) {
+    print $sandwich->nom . ' ' . $sandwich->type_pain . '<br>';
+}
