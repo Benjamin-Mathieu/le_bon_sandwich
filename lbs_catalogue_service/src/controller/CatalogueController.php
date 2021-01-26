@@ -2,7 +2,7 @@
 
 namespace src\Controller;
 
-class SandwichController{
+class CatalogueController{
 
     
 
