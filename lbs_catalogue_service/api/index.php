@@ -9,3 +9,9 @@ echo "catalogue service index";
 
 $db_mongo = new \MongoDB\Client("mongodb://api.catalogue.local");
 echo "connected to mongo<br>";
+
+$app = new \Slim\App();
+
+
+
+$app->run();
