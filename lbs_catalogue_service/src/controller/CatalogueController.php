@@ -40,7 +40,8 @@ class CatalogueController
                     "nom" => $sandwich->nom,
                     "type_pain" => $sandwich->type_pain,
                     "prix" => $sandwich->prix
-                ]
+                ],
+                "links" => ["self" => ["href" => "/sandwichs/$sandwich->ref"]]
             );
             $count++;
             array_push($collection['sandwichs'], $s);
