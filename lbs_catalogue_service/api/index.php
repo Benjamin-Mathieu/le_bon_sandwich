@@ -18,40 +18,7 @@ $app = new \Slim\App($container);
 
 $app->get("/sandwichs", function (Request $rq, Response $resp): Response {
     $controller = new CatalogueController($this);
-
-    if ($rq->getQueryParams("page", "size")) {
-        $connection = new \MongoDB\Client("mongodb://dbcat");
-        $db_catalogue = $connection->catalogue;
-
-        $params = $rq->getQueryParams("page");
-        $current_page = $params["page"];
-        $next_page = $current_page + 1;
-        $prev_page = $current_page - 1;
-
-        $size = $params["size"];
-
-        $sandwiches = $db_catalogue->sandwiches->find(
-            [],
-            [
-                'limit' => 0 + $size,
-                'skip' => ($current_page - 1) * $size
-            ]
-        );
-    }
-
-    echo "<h1>Liste des sandwichs: (page : $current_page size : $size)</h1>";
-    foreach ($sandwiches as $sandwich) {
-        echo $sandwich->nom . "<br>";
-    }
-
-    echo "<a href='/sandwichs?page=$prev_page&size=$size'>Page précédente</a>
-        <a href='/sandwichs?page=$next_page&size=$size'>Page suivante</a>";
-
-    $resp->getBody()->write("");
-    return $resp;
-    // } else {
-    //     return $controller->getSandwichs($rq, $resp);
-    // }
+    return $controller->getSandwichs($rq, $resp);
 });
 
 $app->run();
