@@ -19,46 +19,39 @@ $app = new \Slim\App($container);
 $app->get("/sandwichs", function (Request $rq, Response $resp): Response {
     $controller = new CatalogueController($this);
 
-    if ($rq->getQueryParams("page", 0)) {
+    if ($rq->getQueryParams("page", "size")) {
         $connection = new \MongoDB\Client("mongodb://dbcat");
         $db_catalogue = $connection->catalogue;
 
-
-        $page = $rq->getQueryParams("page");
-        $current_page = $page["page"];
+        $params = $rq->getQueryParams("page");
+        $current_page = $params["page"];
         $next_page = $current_page + 1;
         $prev_page = $current_page - 1;
 
-        if ($current_page == 1) {
-            $sandwiches = $db_catalogue->sandwiches->find(
-                [],
-                [
-                    'limit' => 10
-                ]
-            );
-        } else if ($current_page == 2) {
-            $sandwiches = $db_catalogue->sandwiches->find(
-                [],
-                [
-                    'limit' => 10,
-                    'skip' => ($current_page - 1) * 10
-                ]
-            );
-        }
+        $size = $params["size"];
 
-        echo "<h1>Liste des sandwichs:</h1>";
-        foreach ($sandwiches as $sandwich) {
-            echo $sandwich->nom . "<br>";
-        }
-
-        echo "<a href='/sandwichs?page=$prev_page'>Page précédente
-        <a href='/sandwichs?page=$next_page'>Page suivante";
-
-        $resp->getBody()->write("");
-        return $resp;
-    } else {
-        return $controller->getSandwichs($rq, $resp);
+        $sandwiches = $db_catalogue->sandwiches->find(
+            [],
+            [
+                'limit' => 0 + $size,
+                'skip' => ($current_page - 1) * $size
+            ]
+        );
     }
+
+    echo "<h1>Liste des sandwichs: (page : $current_page size : $size)</h1>";
+    foreach ($sandwiches as $sandwich) {
+        echo $sandwich->nom . "<br>";
+    }
+
+    echo "<a href='/sandwichs?page=$prev_page&size=$size'>Page précédente</a>
+        <a href='/sandwichs?page=$next_page&size=$size'>Page suivante</a>";
+
+    $resp->getBody()->write("");
+    return $resp;
+    // } else {
+    //     return $controller->getSandwichs($rq, $resp);
+    // }
 });
 
 $app->run();
