@@ -14,9 +14,25 @@ $container = new \Slim\Container(array_merge($config_slim, $errors));
 
 $app = new \Slim\App($container);
 
-$app->get("/sandwichs", function (Request $rq, Response $resp): Response {
+$app->get("/sandwichs", function (Request $rq, Response $resp, $args): Response {
     $controller = new CatalogueController($this);
-    return $controller->getSandwichs($rq, $resp);
+
+    if($rq->getQueryParams()){
+        return $controller->getSandwichsFilter($rq, $resp, $args);
+    }else{
+        return $controller->getSandwichs($rq, $resp);
+    }
+});
+
+$app->get("/categories/{id}/sandwichs[/]", function (Request $rq, Response $resp, $args): Response {
+
+});
+
+
+
+$app->get("/hello[/]", function (Request $rq, Response $resp, $args): Response {
+    $controller = new CatalogueController($this);
+    return $controller->getSandwichsFilter($rq, $resp, $args);
 });
 
 $app->run();
