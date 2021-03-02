@@ -21,7 +21,12 @@ class CatalogueController
         // Sélectionne la base de donnée à utiliser
         $db_catalogue = $connection->catalogue;
         // Sélectionne la collection de sandwichs
-        $sandwiches = $db_catalogue->sandwiches->find();
+        $sandwiches = $db_catalogue->sandwiches->find(
+            [],
+            [
+                'limit' => 10
+            ]
+        );
 
         $collection = array(
             "type" => "collection",

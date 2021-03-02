@@ -14,9 +14,51 @@ $container = new \Slim\Container(array_merge($config_slim, $errors));
 
 $app = new \Slim\App($container);
 
+// *****************    ROUTES  *****************
+
 $app->get("/sandwichs", function (Request $rq, Response $resp): Response {
     $controller = new CatalogueController($this);
-    return $controller->getSandwichs($rq, $resp);
+
+    if ($rq->getQueryParams("page", 0)) {
+        $connection = new \MongoDB\Client("mongodb://dbcat");
+        $db_catalogue = $connection->catalogue;
+
+
+        $page = $rq->getQueryParams("page");
+        $current_page = $page["page"];
+        $next_page = $current_page + 1;
+        $prev_page = $current_page - 1;
+
+        if ($current_page == 1) {
+            $sandwiches = $db_catalogue->sandwiches->find(
+                [],
+                [
+                    'limit' => 10
+                ]
+            );
+        } else if ($current_page == 2) {
+            $sandwiches = $db_catalogue->sandwiches->find(
+                [],
+                [
+                    'limit' => 10,
+                    'skip' => ($current_page - 1) * 10
+                ]
+            );
+        }
+
+        echo "<h1>Liste des sandwichs:</h1>";
+        foreach ($sandwiches as $sandwich) {
+            echo $sandwich->nom . "<br>";
+        }
+
+        echo "<a href='/sandwichs?page=$prev_page'>Page précédente
+        <a href='/sandwichs?page=$next_page'>Page suivante";
+
+        $resp->getBody()->write("");
+        return $resp;
+    } else {
+        return $controller->getSandwichs($rq, $resp);
+    }
 });
 
 $app->run();
