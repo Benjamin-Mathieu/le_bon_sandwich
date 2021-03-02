@@ -1,4 +1,3 @@
-cd ..#
 #  Services pour le projet lbs
 #  Basé sur le template et les images PHP disponibles ici :
 #  https://gitlab.univ-lorraine.fr/canals5/docker-php/
@@ -73,7 +72,7 @@ services:
       - MYSQL_PASSWORD=command_lbs
       - MYSQL_DATABASE=command_lbs
     ports:
-      - "3307:3306"
+      - "3308:3306"
     networks:
       - lbs.net
     volumes:
