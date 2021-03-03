@@ -23,16 +23,23 @@ class CatalogueController
 
         // ************* PAGINATION *************
         if ($rq->getQueryParams("page", "size")) {
-            $connection = new \MongoDB\Client("mongodb://dbcat");
-            $db_catalogue = $connection->catalogue;
 
-            $params = $rq->getQueryParams("page");
+            // Récupération des paramètres page et size
+            $params = $rq->getQueryParams();
             $current_page = $params["page"];
-            $next_page = $current_page + 1;
-            $prev_page = $current_page - 1;
-
             $size = $params["size"];
 
+            $url_sandwich = $this->c->router->pathFor("sandwichs", []); //Générateur d'url: /sandwichs
+            $count = $db_catalogue->sandwiches->count(); // Compte le nombre total de sandwichs de la collection sandwiches dans mongo
+            $last_page = intdiv($count, $size) + 1;
+
+            // Condition si numéro de page supérieur à la dernière page alors retourner la dernière page
+            if ($current_page > $last_page) $current_page = $last_page;
+            // Condition si numéro de page inférieur à 1 alors retourne la première page
+            if ($current_page < 1) $current_page = 1;
+
+
+            // Récupération des sandwiches pour la pagination
             $sandwiches = $db_catalogue->sandwiches->find(
                 [],
                 [
@@ -41,18 +48,24 @@ class CatalogueController
                 ]
             );
 
+            // ********* JSON ***********
             $collection = array(
                 "type" => "collection",
-                "count" => "",
-                "date" => "",
+                "count" => $count,
+                "date" => date("Y/m/d"),
+                "links" => [
+                    "next" => ["href" => "$url_sandwich?page=" . ($current_page + 1) . "&size=$size"],
+                    "prev" => ["href" => "$url_sandwich?page=" . ($current_page - 1) . "&size=$size"],
+                    "last" => ["href" => "$url_sandwich?page=" . $last_page . "&size=$size"],
+                    "first" => ["href" => "$url_sandwich?page=1&size=" . $size]
+                ],
                 "sandwichs" => []
             );
 
-            $collection['date'] = date("Y/m/d");
             $count = 0;
-
+            // ********* JSON SANDWICHES ***********
             foreach ($sandwiches as $sandwich) {
-                $s = array(
+                $json_sandwich = array(
                     "sandwich" => [
                         "ref" => $sandwich->ref,
                         "nom" => $sandwich->nom,
@@ -62,21 +75,13 @@ class CatalogueController
                     "links" => ["self" => ["href" => "/sandwichs/$sandwich->ref"]]
                 );
                 $count++;
-                array_push($collection['sandwichs'], $s);
+                array_push($collection['sandwichs'], $json_sandwich);
             }
-            $collection['count'] = $count;
 
-            $resp = $resp->withHeader('Content-Type', 'application/json, text/html');
+            $resp = $resp->withHeader('Content-Type', 'application/json');
             $resp->getBody()->write(json_encode($collection));
-            $resp->getBody()->write("<div><a href='/sandwichs?page=$prev_page&size=$size'>Previous page</a>
-            //     <a href='/sandwichs?page=$next_page&size=$size'>Next page</a></div>");
             return $resp;
         }
-
-        // echo "<h1>Liste des sandwichs: (page : $current_page size : $size)</h1>";
-        // foreach ($sandwiches as $sandwich) {
-        //     echo $sandwich->nom . "<br>";
-        // }
 
         // ************* PAR DEFAULT AFFICHAGE DES 10 PREMIERS SANDWICHS *************
         $sandwiches = $db_catalogue->sandwiches->find(

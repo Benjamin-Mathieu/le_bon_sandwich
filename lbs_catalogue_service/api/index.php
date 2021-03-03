@@ -19,6 +19,6 @@ $app = new \Slim\App($container);
 $app->get("/sandwichs", function (Request $rq, Response $resp): Response {
     $controller = new CatalogueController($this);
     return $controller->getSandwichs($rq, $resp);
-});
+})->setName("sandwichs");
 
 $app->run();
