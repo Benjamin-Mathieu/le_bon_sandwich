@@ -21,4 +21,7 @@ $app->get("/sandwichs", function (Request $rq, Response $resp): Response {
     return $controller->getSandwichs($rq, $resp);
 })->setName("sandwichs");
 
+$app->get("/sandwichs/{ref}[/]", CatalogueController::class . ':getResource')
+    ->setName("resource");
+
 $app->run();

@@ -120,4 +120,48 @@ class CatalogueController
         $resp->getBody()->write(json_encode($collection));
         return $resp;
     }
+
+    public function getResource(Request $rq, Response $resp, array $args): Response
+    {
+        // Connexion à la DB
+        $connection = new \MongoDB\Client("mongodb://dbcat");
+        // Sélectionne la base de donnée à utiliser
+        $db_catalogue = $connection->catalogue;
+
+        $ref_sandwich = $args['ref']; // Récupération de l'argument ref dans l'url
+        $ref_array = array("ref" => $ref_sandwich);
+        $url_resource = $this->c->router->pathFor("resource", ["ref" => $ref_sandwich]); // Génération de l'url /sandwichs/{ref}
+
+        $resource = $db_catalogue->sandwiches->findOne($ref_array); // Récupération du sandwich dans la bdd par rapport à la valeur de sa référence
+
+        // Création du JSON 
+        $json = array(
+            "type" => "resource",
+            "links" => [
+                "self" => ["href" => "$url_resource"],
+                "categories" => ["href" => $url_resource . "categories"]
+            ],
+            "sandwich" => [
+                "id" => $resource->_id,
+                "ref" => $resource->ref,
+                "nom" => $resource->nom,
+                "description" => $resource->description,
+                "type_pain" => $resource->type_pain,
+                "categories" => []
+            ]
+        );
+
+        // Récupération des catégories du sandwich
+        foreach ($resource->categories as $categorie) {
+            $categ_array = array("nom" => $categorie);
+            $categ_sandwich =  $db_catalogue->categories->findOne($categ_array); // Récupère les informations d'une catégorie du sandwich
+
+            $info_categorie = array("id" => $categ_sandwich->id, "nom" => $categ_sandwich->nom);
+            array_push($json["sandwich"]["categories"], $info_categorie);
+        }
+
+        $resp = $resp->withHeader('Content-Type', 'application/json');
+        $resp->getBody()->write(json_encode($json));
+        return $resp;
+    }
 }
