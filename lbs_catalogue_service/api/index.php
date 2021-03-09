@@ -31,7 +31,7 @@ $app->get("/categories/{id}/sandwichs[/]", function (Request $rq, Response $resp
 
 $app->get("/categories/{id}[/]", function (Request $rq, Response $resp, $args): Response {
     $controller = new CatalogueController($this);
-    return $controller->getSandwishsByCategorie($rq, $resp, $args);
+    return $controller->getCategorie($rq, $resp, $args);
 });
 
 $app->get("/hello[/]", function (Request $rq, Response $resp, $args): Response {
