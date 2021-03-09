@@ -25,10 +25,14 @@ $app->get("/sandwichs", function (Request $rq, Response $resp, $args): Response 
 });
 
 $app->get("/categories/{id}/sandwichs[/]", function (Request $rq, Response $resp, $args): Response {
-
+    $controller = new CatalogueController($this);
+    return $controller->getSandwishsByCategorie($rq, $resp, $args);
 });
 
-
+$app->get("/categories/{id}[/]", function (Request $rq, Response $resp, $args): Response {
+    $controller = new CatalogueController($this);
+    return $controller->getSandwishsByCategorie($rq, $resp, $args);
+});
 
 $app->get("/hello[/]", function (Request $rq, Response $resp, $args): Response {
     $controller = new CatalogueController($this);
