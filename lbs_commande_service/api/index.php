@@ -1,15 +1,32 @@
 <?php
-echo "commande service index";
 require_once  __DIR__ . '/../src/vendor/autoload.php';
 
-use \Psr\Http\Message\ServerRequestInterface as Request ;
-use \Psr\Http\Message\ResponseInterface as Response ;
+use lbs\command\controller\CommandeController;
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
 
-$app = new \Slim\App();
+$config_slim = require_once('conf/Settings.php'); /* Récupération de la config de Slim */
+$errors = require_once('conf/Errors.php'); /* Récupération des erreurs */
 
-$app->get('/test', function (Request $rq, Response $rs): Response {
-    $rs->getBody()->write('Hello world');
-    return $rs;
-});
+/* Création du conteneur pour utiliser la cfg dans le programme */
+$container = new \Slim\Container(array_merge($config_slim, $errors));
+
+// Connection à la BDD
+$container['db'] = function ($container) {
+    $capsule = new \Illuminate\Database\Capsule\Manager;
+    $capsule->addConnection($container['settings']['db']);
+
+    $capsule->setAsGlobal();
+    $capsule->bootEloquent();
+
+    return $capsule;
+};
+
+
+
+$app = new \Slim\App($container);
+
+// *****************    ROUTES  *****************
+$app->get('/commandes', CommandeController::class . ':createCommand');
 
 $app->run();
