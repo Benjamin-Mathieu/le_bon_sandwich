@@ -27,6 +27,6 @@ $container['db'] = function ($container) {
 $app = new \Slim\App($container);
 
 // *****************    ROUTES  *****************
-$app->get('/commandes', CommandeController::class . ':createCommand');
+$app->post('/commandes', CommandeController::class . ':createCommand');
 
 $app->run();

@@ -29,30 +29,47 @@ class CommandeController
 
     public function createCommand(Request $rq, Response $res)
     {
-        $commands = Command::all();
-
 
         $cmd = new Command();
         $cmd->id = Uuid::uuid4();
-        $cmd->nom = "Benjamin";
-        $cmd->mail = "ben@gmail.com";
-        $cmd->livraison = \DateTime::createFromFormat("d-n-Y H:i", "2021-15-03 08:08:48");
+        $body = json_decode($rq->getBody());
+        $cmd->nom = $body->nom;
+        $cmd->mail = $body->mail;
+
+        // Ajout de la date et l'heure dans le body
+        $date = date_create_from_format('d-m-Y', $body->livraison->date);
+        $heure = date_create_from_format("H:i", $body->livraison->heure);
+        $cmd->livraison = $date->format("Y-m-d") . " " . $heure->format("H:i:s");
+
         $cmd->status = 1;
         $cmd->token = bin2hex(random_bytes(32));
         $cmd->montant = 0;
 
-        $cmd->save();
+        try {
+            $cmd->save();
+        } catch (\Exception $e) {
+            $res = $res->withStatus(500)
+                ->withHeader('Content-Type', 'application/json');
+            $res->getBody()->write(json_encode($e->getmessage()));
+            return $res;
+        }
 
-        // if (!is_null($commands)) {
-        //     $res = $res->withStatus(200)
-        //         ->withHeader('Content-Type', 'text/html');
-        //     $res->getBody()->write($commands);
-        //     return $res;
-        // } else {
-        //     $res = $res->withStatus(404)
-        //         ->withHeader('Content-Type', 'text/html');
-        //     $res->getBody()->write(json_encode("Commands Not Found"));
-        //     return $res;
-        // }
+        $json = array(
+            "commande" => [
+                "nom" => $cmd->nom,
+                "mail" => $cmd->mail,
+                "livraison" => [
+                    "date" => explode(" ", $cmd->livraison)[0],
+                    "heure" => explode(" ", $cmd->livraison)[1]
+                ]
+            ],
+            "id" => $cmd->id,
+            "token" => $cmd->token,
+            "montant" => $cmd->montant
+        );
+        $res = $res->withStatus(201)
+            ->withHeader('Content-Type', 'application/json');
+        $res->getBody()->write(json_encode($json));
+        return $res;
     }
 }
