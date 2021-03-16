@@ -14,25 +14,14 @@ $container = new \Slim\Container(array_merge($config_slim, $errors));
 
 $app = new \Slim\App($container);
 
-$app->get("/sandwichs", function (Request $rq, Response $resp, $args): Response {
-    $controller = new CatalogueController($this);
+// *****************    ROUTES  *****************
 
-    if($rq->getQueryParams()){
-        return $controller->getSandwichsFilter($rq, $resp, $args);
-    }else{
-        return $controller->getSandwichs($rq, $resp);
-    }
-});
+$app->get("/sandwichs", CatalogueController::class . ':getSandwichs')->setName("sandwichs");
 
-$app->get("/categories/{id}/sandwichs[/]", function (Request $rq, Response $resp, $args): Response {
+$app->get("/sandwichs/{ref}[/]", CatalogueController::class . ':getResource')->setName("resource");
 
-});
+$app->get("/categories/{id}/sandwichs[/]",CatalogueController::class . ':getSandwishsByCategorie')->setName("sandwichsByCategories");
 
-
-
-$app->get("/hello[/]", function (Request $rq, Response $resp, $args): Response {
-    $controller = new CatalogueController($this);
-    return $controller->getSandwichsFilter($rq, $resp, $args);
-});
+$app->get("/categories/{id}[/]",CatalogueController::class . ':getCategorie')->setName("categories");
 
 $app->run();
