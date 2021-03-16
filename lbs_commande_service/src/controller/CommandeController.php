@@ -72,4 +72,29 @@ class CommandeController
         $res->getBody()->write(json_encode($json));
         return $res;
     }
+
+    public function getCommand(Request $rq, Response $res, array $args): Response
+    {
+        $id_sandwich = $args["id"]; // récupération de l'arg id mis dans l'url
+
+        $cmd = Command::find($id_sandwich); // Récupération de la commande
+
+        $json_cmd = array(
+            "commande" => [
+                "nom" => $cmd->nom,
+                "mail" => $cmd->mail,
+                "livraison" => [
+                    "date" => explode(" ", $cmd->livraison)[0],
+                    "heure" => explode(" ", $cmd->livraison)[1]
+                ]
+            ],
+            "id" => $cmd->id,
+            "token" => $cmd->token,
+            "montant" => $cmd->montant
+        );
+
+        $res = $res->withHeader("Content-Type", "application/json");
+        $res->getBody()->write(json_encode($json_cmd));
+        return $res;
+    }
 }

@@ -29,4 +29,7 @@ $app = new \Slim\App($container);
 // *****************    ROUTES  *****************
 $app->post('/commandes', CommandeController::class . ':createCommand');
 
+$app->get('/commandes/{id}', CommandeController::class . ':getCommand')
+    ->setName("command");
+
 $app->run();
