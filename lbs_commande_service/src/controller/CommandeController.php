@@ -6,16 +6,7 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use Ramsey\Uuid\Uuid;
 use lbs\command\models\Command;
-use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Date;
-
-// $client = new GuzzleHttp\Client([
-//     // Base URL : pour ensuite transmettre des requêtes relatives
-//     'base_url' => 'http://api.command.local:19043',
-//     // options par défaut pour les requêtes
-//     'timeout' => 2.0,
-// ]);
-
+use GuzzleHttp\Client as Guzzle;
 
 class CommandeController
 {
@@ -24,12 +15,10 @@ class CommandeController
     public function __construct($c)
     {
         $this->c = $c;
-        $table = $c->get('db')->table('commande');
     }
 
     public function createCommand(Request $rq, Response $res)
     {
-
         $cmd = new Command();
         $cmd->id = Uuid::uuid4();
         $body = json_decode($rq->getBody());
@@ -77,7 +66,7 @@ class CommandeController
     {
         $id_sandwich = $args["id"]; // récupération de l'arg id mis dans l'url
 
-        $cmd = Command::find($id_sandwich); // Récupération de la commande
+        $cmd = Command::where("id", "=", $id_sandwich)->firstOrFail(); // Récupération de la commande
 
         $json_cmd = array(
             "commande" => [
@@ -93,7 +82,8 @@ class CommandeController
             "montant" => $cmd->montant
         );
 
-        $res = $res->withHeader("Content-Type", "application/json");
+        $res = $res->withStatus(200)
+            ->withHeader("Content-Type", "application/json");
         $res->getBody()->write(json_encode($json_cmd));
         return $res;
     }
