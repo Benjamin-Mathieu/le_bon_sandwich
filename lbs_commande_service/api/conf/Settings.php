@@ -3,6 +3,7 @@
 return [
     "settings" => [
         'displayErrorDetails' => true,
+        'determineRouteBeforeMiddleware' => true,
         'db' => [
             'driver' => 'mysql',
             'host' => 'dbcom',
