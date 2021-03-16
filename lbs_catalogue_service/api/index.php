@@ -16,33 +16,12 @@ $app = new \Slim\App($container);
 
 // *****************    ROUTES  *****************
 
-$app->get("/sandwichs", function (Request $rq, Response $resp, $args): Response {
-    $controller = new CatalogueController($this);
-    return $controller->getSandwichs($rq, $resp);
-})->setName("sandwichs");
-
-$app->get("/categories/{id}/sandwichs[/]", function (Request $rq, Response $resp, $args): Response {
-    $controller = new CatalogueController($this);
-    return $controller->getSandwishsByCategorie($rq, $resp, $args);
-});
-
-$app->get("/categories/{id}[/]", function (Request $rq, Response $resp, $args): Response {
-    $controller = new CatalogueController($this);
-    return $controller->getCategorie($rq, $resp, $args);
-});
-
-$app->get("/hello[/]", function (Request $rq, Response $resp, $args): Response {
-    $controller = new CatalogueController($this);
-    return $controller->getSandwichsFilter($rq, $resp, $args);
-});
-
-
-// $app->get("/sandwichs", function (Request $rq, Response $resp): Response {
-//     $controller = new CatalogueController($this);
-//     return $controller->getSandwichs($rq, $resp);
-// })->setName("sandwichs");
+$app->get("/sandwichs", CatalogueController::class . ':getSandwichs')->setName("sandwichs");
 
 $app->get("/sandwichs/{ref}[/]", CatalogueController::class . ':getResource')->setName("resource");
-    
+
+$app->get("/categories/{id}/sandwichs[/]",CatalogueController::class . ':getSandwishsByCategorie')->setName("sandwichsByCategories");
+
+$app->get("/categories/{id}[/]",CatalogueController::class . ':getCategorie')->setName("categories");
 
 $app->run();

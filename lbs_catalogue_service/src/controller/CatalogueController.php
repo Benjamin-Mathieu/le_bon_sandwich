@@ -21,13 +21,12 @@ class CatalogueController
         // Sélectionne la base de donnée à utiliser
         $db_catalogue = $connection->catalogue;
 
-
+        $params = $rq->getQueryParams();
 
         // ************* PAGINATION *************
-        if ($rq->getQueryParams("page", "size")) {
+        if (isset($params['page']) && isset($params['size'])) {
 
             // Récupération des paramètres page et size
-            $params = $rq->getQueryParams();
             $current_page = $params["page"];
             $size = $params["size"];
 
@@ -38,7 +37,6 @@ class CatalogueController
             // Récupération des sandwiches pour la pagination
             if(isset($params['t'])){
                 $pain = $params["t"];
-                //var_dump($pain);
                 $sandwiches = $db_catalogue->sandwiches->find(
                     ['type_pain' => $pain],
                     [
@@ -49,7 +47,6 @@ class CatalogueController
                     ]
                 );
             }else{
-               // echo "gab est une sale pute";
                 $sandwiches = $db_catalogue->sandwiches->find(
                     [],
                     [
@@ -64,7 +61,6 @@ class CatalogueController
             // Condition si numéro de page inférieur à 1 alors retourne la première page
             if ($current_page < 1) $current_page = 1;
 
-            //var_dump($sandwiches);
             // ********* JSON ***********
             $collection = array(
                 "type" => "collection",
@@ -98,17 +94,10 @@ class CatalogueController
             $resp = $resp->withHeader('Content-Type', 'application/json', 'text/html');
             $resp->getBody()->write(json_encode($collection));
             return $resp;
-
-
-
         }
 
-
-
         // ************* PAR DEFAULT AFFICHAGE DES 10 PREMIERS SANDWICHS *************
-
-        if ($rq->getQueryParams()){
-            $params = $rq->getQueryParams();
+        
             if(isset($params['t'])){
                 $pain = $params["t"];
                 $sandwiches = $db_catalogue->sandwiches->find(
@@ -117,18 +106,14 @@ class CatalogueController
                         'limit' => 10,
                     ]
                 );
+            }else{
+                $sandwiches = $db_catalogue->sandwiches->find(
+                    [],
+                    [
+                        'limit' => 10,
+                    ]
+                );
             }
-
-        }else{
-            $sandwiches = $db_catalogue->sandwiches->find(
-                [],
-                [
-                    'limit' => 10,
-                ]
-            );
-        }
-        
-
 
         $collection = array(
             "type" => "collection",
