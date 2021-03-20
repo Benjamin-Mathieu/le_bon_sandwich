@@ -13,6 +13,12 @@ return [
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
+        ],
+        'cors' => [
+            'methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+            'allow.headers' => ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-commande-token'],
+            'max.age' => 60 * 60,
+            'credentials' => true
         ]
     ]
 ];
