@@ -11,12 +11,17 @@ $errors = require_once('conf/Errors.php'); /* Récupération des erreurs */
 /* Création du conteneur pour utiliser la cfg dans le programme */
 $container = new \Slim\Container(array_merge($config_slim, $errors));
 
+//Connection à la BDD
+$capsule = new \Illuminate\Database\Capsule\Manager;
+$capsule->addConnection($container['settings']['db']);
+$capsule->setAsGlobal();
+$capsule->bootEloquent();
+
 $app = new \Slim\App($container);
 
 // *****************    ROUTES  *****************
 
 $app->post("/cartes/{id}/auth", AuthController::class . ':authentification')->setName("cartes");
-
 
 $app->get('/hello', function () {
     echo "Hello, world";
