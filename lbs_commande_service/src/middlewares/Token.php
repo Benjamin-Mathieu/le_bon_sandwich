@@ -28,7 +28,13 @@ class Token
                 ->where("token", "=", $token)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $res->getBody()->write("Token doesn't correspond");
+            $json_error = array(
+                "error" => 401,
+                "message" => "Unauthorized - Token missing or false"
+            );
+            $res = $res->withStatus(401)
+                ->withHeader("Content-Type", "application/json; charset=utf-8");
+            $res->getBody()->write(json_encode($json_error));
             return $res;
         }
         return $next($rq, $res);
