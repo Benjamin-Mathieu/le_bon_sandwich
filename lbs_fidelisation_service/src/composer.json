@@ -6,12 +6,12 @@
     "illuminate/database":"^8.0",
     "monolog/monolog": "^2.1",
     "ramsey/uuid": "^4.1",
-    "guzzlehttp/guzzle": "^7.0"
+    "guzzlehttp/guzzle": "^7.0",
+    "firebase/php-jwt": "^5.0.0"
   },
   "autoload": {
     "psr-4" : {
-      "lbs\\command\\" : "."
-
+      "lbs\\fidelisation\\" : "."
     }
 
   }

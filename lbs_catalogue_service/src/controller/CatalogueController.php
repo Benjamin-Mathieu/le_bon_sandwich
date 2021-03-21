@@ -232,7 +232,7 @@ class CatalogueController
         $ref_array = array("ref" => $ref_sandwich);
         $url_resource = $this->c->router->pathFor("resource", ["ref" => $ref_sandwich]); // Génération de l'url /sandwichs/{ref}
 
-        $resource = $db_catalogue->sandwiches->findOne($ref_array); // Récupération du sandwich dans la bdd par rapport à la valeur de sa référence
+        $resource = $db_catalogue->sandwiches->findOne($ref_array, ['prix' => ['$toInt' => '$prix']]); // Récupération du sandwich dans la bdd par rapport à la valeur de sa référence
 
         // Création du JSON 
         $json = array(
@@ -247,6 +247,7 @@ class CatalogueController
                 "nom" => $resource->nom,
                 "description" => $resource->description,
                 "type_pain" => $resource->type_pain,
+                "prix" => $resource->prix,
                 "categories" => []
             ]
         );
