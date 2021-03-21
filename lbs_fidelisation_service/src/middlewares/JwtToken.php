@@ -12,9 +12,9 @@ class JwtToken {
 
     public function checkJWTClient(Request $rq, Response $rs, callable $next) : Response {
 
-        if(!$rq->hasHeader('Authorization') {
+        if(!$rq->hasHeader('Authorization')) {
             return Writer::json_error($rs, 401, 'No auhtorization header present');
-        })
+        }
     
         $token = null;
     
