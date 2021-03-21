@@ -57,8 +57,8 @@ class AuthController{
             ));
         }
 
-        $secret = $this->c['secret'];
-
+        $secret = $this->c['settings']['secret'];
+        
         $token = JWT::encode(
             [
                 'iss' => "http://api.fidelisation.local/auth",
