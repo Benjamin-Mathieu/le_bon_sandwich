@@ -12,8 +12,16 @@ class JwtToken {
 
     public function checkJWTClient(Request $rq, Response $rs, callable $next) : Response {
 
+        $rs = $rs->withHeader('WWW-authenticate', 'Basic realm="commande_api api"');
+
         if(!$rq->hasHeader('Authorization')) {
-            return Writer::json_error($rs, 401, 'No auhtorization header present');
+            return $rs->getBody()->write(json_encode(
+                [
+                    'type' => 'error',
+                    'error' => 401,
+                    'message' => "No Authorization header present",
+                ]
+            ));
         }
     
         $token = null;
@@ -21,16 +29,35 @@ class JwtToken {
         try {
             $token = $this->decode($rq->getHeader('Authorization')[0]);
         } catch (\UnexpectedValueException $e) {
-            return Writer::json_error($rs, 401, 'invalid auth token');
+            return $rs->getBody()->write(json_encode(
+                [
+                    'type' => 'error',
+                    'error' => 401,
+                    'message' => "invalid auth token",
+                ]
+            ));
         } catch (\DomainException $e) {
-            return Writer::json_error($rs, 401, 'invalid auth token');
+            return $rs->getBody()->write(json_encode(
+                [
+                    'type' => 'error',
+                    'error' => 401,
+                    'message' => "invalid auth token",
+                ]
+            ));
         };
     
         $route_carte_id = $rq->getAttribute('route')->getArgument('id');
         $token_carte_id = $token->cid;
     
         if ($route_carte_id != $token_carte_id) {
-            return Writer::json_error($rs, 401, 'Invalidation authorization', $this->$c['router']->pathFor('auth', ['id' => $route_carte_id]));
+            return $rs->getBody()->write(json_encode(
+                [
+                    'type' => 'error',
+                    'error' => 401,
+                    'message' => "invalid auth token",
+                    $this->$c['router']->pathFor('auth', ['id' => $route_carte_id])
+                ]
+            ));
         }
     
         $rq = $rq->withAttribute('validated_carte_id', $token_carte_id);
