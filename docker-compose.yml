@@ -34,6 +34,28 @@ services:
       - mysql.commande:dbcom
       - api.catalogue:api.catalogue.local
 
+
+  # API des fidelisations
+  # disponible sur l'url https://api.fidelisation.local:19044
+  #
+  api.fidelisation:
+    image: canals/php:latest
+    environment:
+      - VHOST_HOSTNAME=api.fidelisation.local
+      - VHOST_DOCROOT=/var/www/api
+    ports:
+      - 19081:80
+      - 19044:443
+    volumes:
+      - ./lbs_fidelisation_service/api:/var/www/api
+      - ./lbs_fidelisation_service/src:/var/www/src
+    working_dir: /var/www/src
+    networks:
+      - lbs.net
+    links:
+      - mysql.fidelisation:dbfid
+      - api.commande:api.commande.local
+
   #
   # API de navigation dans le catalogue
   # disponible sur l'url https://api.catalogue.local:19143
@@ -79,6 +101,26 @@ services:
     volumes:
       - "./lbs_commande_service/sql:/var/sql"
 
+
+  #
+  # Base de données des fidelisations, utilisée par le service de prise
+  # de fidelisation
+  #
+  mysql.fidelisation:
+    image: "mariadb:latest"
+    command: "--default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_general_ci"
+    environment:
+      - MYSQL_ROOT_PASSWORD=fidroot
+      - MYSQL_USER=fidelisation_lbs
+      - MYSQL_PASSWORD=fidelisation_lbs
+      - MYSQL_DATABASE=fidelisation_lbs
+    ports:
+      - "3308:3306"
+    networks:
+      - lbs.net
+    volumes:
+      - "./lbs_fidelisation_service/sql:/var/sql"
+
   #
   # Base de données du catalogue, utilisée par le service catalogue
   #
@@ -109,6 +151,7 @@ services:
       - lbs.net
     links:
       - mysql.commande:command
+      - mysql.fidelisation:fidelisation
       - mysql.catalogue:catalogue
   #
   # mongo service, pour un catalogue mongo

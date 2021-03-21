@@ -22,8 +22,6 @@ $container['db'] = function ($container) {
     return $capsule;
 };
 
-
-
 $app = new \Slim\App($container);
 
 // *****************    ROUTES  *****************
