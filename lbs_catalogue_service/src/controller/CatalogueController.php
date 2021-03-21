@@ -34,19 +34,24 @@ class CatalogueController
             $count = $db_catalogue->sandwiches->count(); // Compte le nombre total de sandwichs de la collection sandwiches dans mongo
             $last_page = intdiv($count, $size) + 1;
 
+            // Condition si numéro de page supérieur à la dernière page alors retourner la dernière page
+            if ($current_page > $last_page) $current_page = $last_page;
+            // Condition si numéro de page inférieur à 1 alors retourne la première page
+            if ($current_page < 1) $current_page = 1;
+
             // Récupération des sandwiches pour la pagination
-            if(isset($params['t'])){
+            if (isset($params['t'])) {
                 $pain = $params["t"];
                 $sandwiches = $db_catalogue->sandwiches->find(
                     ['type_pain' => $pain],
                     [
                         'limit' => 0 + $size,
                         'skip' => ($current_page - 1) * $size,
-                        
-                        
+
+
                     ]
                 );
-            }else{
+            } else {
                 $sandwiches = $db_catalogue->sandwiches->find(
                     [],
                     [
@@ -55,11 +60,6 @@ class CatalogueController
                     ]
                 );
             }
-
-            // Condition si numéro de page supérieur à la dernière page alors retourner la dernière page
-            if ($current_page > $last_page) $current_page = $last_page;
-            // Condition si numéro de page inférieur à 1 alors retourne la première page
-            if ($current_page < 1) $current_page = 1;
 
             // ********* JSON ***********
             $collection = array(
@@ -97,23 +97,23 @@ class CatalogueController
         }
 
         // ************* PAR DEFAULT AFFICHAGE DES 10 PREMIERS SANDWICHS *************
-        
-            if(isset($params['t'])){
-                $pain = $params["t"];
-                $sandwiches = $db_catalogue->sandwiches->find(
-                    ['type_pain' => $pain],
-                    [
-                        'limit' => 10,
-                    ]
-                );
-            }else{
-                $sandwiches = $db_catalogue->sandwiches->find(
-                    [],
-                    [
-                        'limit' => 10,
-                    ]
-                );
-            }
+
+        if (isset($params['t'])) {
+            $pain = $params["t"];
+            $sandwiches = $db_catalogue->sandwiches->find(
+                ['type_pain' => $pain],
+                [
+                    'limit' => 10,
+                ]
+            );
+        } else {
+            $sandwiches = $db_catalogue->sandwiches->find(
+                [],
+                [
+                    'limit' => 10,
+                ]
+            );
+        }
 
         $collection = array(
             "type" => "collection",
@@ -142,10 +142,10 @@ class CatalogueController
         $resp = $resp->withHeader('Content-Type', 'application/json');
         $resp->getBody()->write(json_encode($collection));
         return $resp;
-
     }
 
-    public function getCategorie(Request $rq, Response $resp, $args){
+    public function getCategorie(Request $rq, Response $resp, $args)
+    {
 
         // Connexion à la DB
         $connection = new \MongoDB\Client("mongodb://dbcat");
@@ -166,19 +166,19 @@ class CatalogueController
                 "description" => $la_categ->description
             ],
             "links" => [
-                "sandwichs" => ["href" => "/categories/${id}/sandwichs/" ],
-                "self" => ["href" => "/categories/${id}/" ],
+                "sandwichs" => ["href" => "/categories/${id}/sandwichs/"],
+                "self" => ["href" => "/categories/${id}/"],
             ]
 
-            );
+        );
 
         $resp = $resp->withHeader('Content-Type', 'application/json');
         $resp->getBody()->write(json_encode($resource));
         return $resp;
-
     }
 
-    public function getSandwishsByCategorie(Request $rq, Response $resp, $args){
+    public function getSandwishsByCategorie(Request $rq, Response $resp, $args)
+    {
 
         // Connexion à la DB
         $connection = new \MongoDB\Client("mongodb://dbcat");
@@ -186,7 +186,7 @@ class CatalogueController
         $db_catalogue = $connection->catalogue;
 
         $categ_id = $args['id'];
-        
+
         $categ_array = array("id" => intval($categ_id));
         $la_categ = $db_catalogue->categories->findOne($categ_array); // on récupère la categorie selon le paramètre de la route
         $categ_sand = array("categories" => $la_categ->nom);
@@ -218,8 +218,7 @@ class CatalogueController
         $resp = $resp->withHeader('Content-Type', 'application/json');
         $resp->getBody()->write(json_encode($s1));
         return $resp;
-
-    } 
+    }
     public function getResource(Request $rq, Response $resp, array $args): Response
     {
 
@@ -264,7 +263,5 @@ class CatalogueController
         $resp = $resp->withHeader('Content-Type', 'application/json');
         $resp->getBody()->write(json_encode($json));
         return $resp;
-    }   
-
-    
+    }
 }
