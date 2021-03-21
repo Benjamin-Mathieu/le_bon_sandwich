@@ -1,6 +1,5 @@
 <?php
-
-use lbs\catalogue\controller\CatalogueController;
+use lbs\fidelisation\controller\AuthController;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
@@ -16,12 +15,11 @@ $app = new \Slim\App($container);
 
 // *****************    ROUTES  *****************
 
-$app->get("/sandwichs", CatalogueController::class . ':getSandwichs')->setName("sandwichs");
+$app->post("/cartes/{id}/auth", AuthController::class . ':authentification')->setName("cartes");
 
-$app->get("/sandwichs/{ref}[/]", CatalogueController::class . ':getResource')->setName("resource");
 
-$app->get("/categories/{id}/sandwichs[/]",CatalogueController::class . ':getSandwishsByCategorie')->setName("sandwichsByCategories");
-
-$app->get("/categories/{id}[/]",CatalogueController::class . ':getCategorie')->setName("categories");
+$app->get('/hello', function () {
+    echo "Hello, world";
+});
 
 $app->run();
