@@ -33,7 +33,8 @@ class Cors
         $response = $response->withHeader('Access-Control-Allow-Origin', $rq->getHeader('Origin'))
             ->withHeader('Access-Control-Allow-Methods', implode(', ', $this->c['settings']['cors']['methods']))
             ->withHeader('Access-Control-Allow-Headers', implode(', ', $this->c['settings']['cors']['allow.headers']))
-            ->withHeader('Access-Control-Max-Age', $this->c['settings']['cors']['max.age']);
+            ->withHeader('Access-Control-Max-Age', $this->c['settings']['cors']['max.age'])
+            ->withHeader('Access-Control-Allow-Credentials', true);
 
 
         if ($this->c['settings']['cors']['credentials']) {
